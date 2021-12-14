@@ -78,7 +78,7 @@ def cost_counter(selected_stocks, reference_dict):
 
 def bruteforce(reference_dict, max_cost):
     """ Print the best combination
-    Arg : The cost limit """
+    Arg : A sorted dict of stocks, The cost limit """
 
     min_length, max_lenght = get_limit(reference_dict, max_cost)
     best_score = 0
