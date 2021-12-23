@@ -100,4 +100,5 @@ def bruteforce(reference_dict, max_cost):
 
 
 sorted_dict = (stock_sorter("stocks.csv"))
+
 bruteforce(sorted_dict, 500)
