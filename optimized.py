@@ -17,7 +17,7 @@ def stocks_dict(csv_file):
             try:
                 cost = int(listed_line[1])
                 performance = int(listed_line[2])
-                added_performance = cost*performance/100
+                added_performance = round(cost*performance/100,3)
                 name = listed_line[0]
                 stock_dict[index] = cost, added_performance, name
                 index += 1
@@ -44,41 +44,52 @@ def optimized_algo(stocks_dict):
 
     step = common_step(stocks_dict)
     number_of_steps = int(CAPITAL/step)
-    table = [[[0, []] for index in range(number_of_steps)] for value in range(len(stocks_dict))]
+    table = [[[0, []] for index in range(CAPITAL+1)] for value in range(len(stocks_dict))]
 
     for stock, row in zip(stocks_dict, range(0, len(stocks_dict))):
-        for column in range(1, len(table[row])):
+        for column in range(len(table[row])):
+
+            above_cell_perf = table[row - 1][column][0]
+            above_cell_stocks = table[row - 1][column][1]
+
 
             if row == 0 or column == 0:
                 table[row][column][0] = 0
 
-            elif stocks_dict[stock][0] <= column*step:
+            elif stocks_dict[stock][0] <= column:
 
-                back = 0
-                added_value = stocks_dict[stock][1]
-                without_last = table[row - 1][column - stocks_dict[stock - 1][0] - back][0]
-                without_last_ref = table[row - 1][column - stocks_dict[stock - 1][0] - back][1]
+                if column - stocks_dict[stock][0] >= 0:
 
-                above_cell_roi = table[row - 1][column][0]
+                    added_value = stocks_dict[stock][1]
+                    added_stock_name = stocks_dict[stock][2]
 
-                if (added_value + without_last) > above_cell_roi:
-                    table[row][column][0] = added_value + without_last
-                    table[row][column][1] = table[row - 1][column - stocks_dict[stock - 1][0] - back][1]
-                    table[row][column][1].append(stocks_dict[stock][2])
+                    without_last = table[row - 1][column - stocks_dict[stock][0]][0]
+                    without_last_stock = table[row - 1][column - stocks_dict[stock][0]][1]
+
+                    if (added_value + without_last) > above_cell_perf:
+                        table[row][column][0] = added_value + without_last
+                        for stock_ref in without_last_stock:
+                            table[row][column][1].append(stock_ref)
+                        table[row][column][1].append(added_stock_name)
+
+                    else:
+                        table[row][column][0] = above_cell_perf
+                        table[row][column][1] = above_cell_stocks
 
                 else:
-                    table[row][column][1] = table[row - 1][column][1]
-                    table[row][column][0] = above_cell_roi
+                    table[row][column][0] = above_cell_perf
 
             else:
                 table[row][column] = table[row - 1][column]
 
-    print(stocks_dict)
+    for value in stocks_dict:
+        print(stocks_dict[value])
 
     import csv
     with open('audit.csv', 'w', encoding="utf-8", newline='' ) as csv_file:
         writer = csv.writer(csv_file, delimiter=",")
-        writer.writerow([x for x in range(step,CAPITAL+step,step)])
+        writer.writerow([x for x in range(0,CAPITAL+1)])
+        # writer.writerow([x for x in range(step,CAPITAL+step,step)])
         for value in table:
             writer.writerow(value)
 
