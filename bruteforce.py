@@ -94,10 +94,9 @@ def bruteforce(reference_dict, max_cost):
                     best_score = score
                     best_combination = combination
 
-    print(datetime.now()-start_time)
-
     print(f"La meilleur score est {round(best_score, 4)}%")
     print(f"Voici la meilleur combinaisons {best_combination}")
+    print(f"L'opération a été effectué en {datetime.now()-start_time}")
 
 
 sorted_dict = (stock_sorter("stocks.csv"))

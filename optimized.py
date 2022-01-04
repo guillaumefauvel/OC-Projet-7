@@ -1,4 +1,5 @@
 import numpy as np
+from datetime import datetime
 import csv
 
 CAPITAL = 500
@@ -20,7 +21,6 @@ def stocks_dict(csv_file):
                 name = listed_line[0]
                 stock_dict[index] = cost, added_performance, name
                 index += 1
-
             except ValueError:
                 pass
 
@@ -30,29 +30,23 @@ available_stocks = (stocks_dict("stocks.csv"))
 
 
 def common_step(dict_of_stocks):
-    # Get the greatest common divisor
+    # Get the greatest common divisor in order to reduce the table
     # Arg : A dictionnary of stocks where the first value correspond to the cost
     # Return : An int, the GCD
 
     costs_lists = np.array([x[1][0] for x in dict_of_stocks.items()])
     gcd = np.gcd.reduce(costs_lists)
+
     return int(gcd)
 
 
-def credit_left(credit, dict_reference):
-
-    available_credit = credit
-    for stock in dict_reference:
-        start, end = stock.split("-")
-        available_credit -= available_stocks[int(end)-1][0]
-
-    return available_credit
-
 def optimized_algo(stocks_dict):
+
+    start_time = datetime.now()
 
     step = common_step(stocks_dict)
     number_of_steps = int(CAPITAL/step)
-    table = [[[0, [], 0] for index in range(CAPITAL+1)] for value in range(len(stocks_dict))]
+    table = [[[0, []] for index in range(number_of_steps+1)] for value in range(len(stocks_dict))]
 
     for stock, row in zip(stocks_dict, range(0, len(stocks_dict))):
 
@@ -61,15 +55,15 @@ def optimized_algo(stocks_dict):
             above_cell_perf = table[row - 1][column][0]
             above_cell_stocks = table[row - 1][column][1]
 
-            if stocks_dict[stock][0] <= column:
+            if stocks_dict[stock][0] <= column*step:
 
-                if column - stocks_dict[stock][0] >= 0:
+                if column*step - stocks_dict[stock][0] >= 0:
 
                     added_value = stocks_dict[stock][1]
                     added_stock_name = stocks_dict[stock][2]
 
-                    without_last = table[row - 1][column - stocks_dict[stock][0]][0]
-                    without_last_stock = table[row - 1][column - stocks_dict[stock][0]][1]
+                    without_last = table[row - 1][column - int(stocks_dict[stock][0] / step)][0]
+                    without_last_stock = table[row - 1][column - int(stocks_dict[stock][0] / step)][1]
 
                     if (added_value + without_last) > above_cell_perf:
                         table[row][column][0] = added_value + without_last
@@ -87,22 +81,21 @@ def optimized_algo(stocks_dict):
             else:
                 table[row][column] = table[row - 1][column]
 
-            table[row][column][2] = credit_left(column,table[row][column][1])
 
-    best_cell = table[len(stocks_dict)-1][CAPITAL]
-    added_value, combinations, credit_available = best_cell
+    best_cell = table[len(stocks_dict)-1][number_of_steps]
+    added_value, combinations = best_cell
     return_on_investment = round(added_value / CAPITAL * 100,3)
 
-    print(f"Le meilleur ROI possible avec {CAPITAL} de crédit est de {return_on_investment}%."
-          f"\nIl est obtenu avec la combinaison suivantes : {', '.join(combinations)}")
+    print(f"\nLe meilleur ROI possible avec {CAPITAL} de crédit est de {return_on_investment}%."
+          f"\nIl est obtenu avec la combinaison suivante : {', '.join(combinations)}")
+    print(f"\nL'opération a été effectué en {datetime.now()-start_time}")
 
     with open('audit.csv', 'w', encoding="utf-8", newline='' ) as csv_file:
         writer = csv.writer(csv_file, delimiter=",")
-        writer.writerow([x for x in range(0,CAPITAL+1)])
+        writer.writerow([x for x in range(0,CAPITAL+step,step)])
 
         for value in table:
             writer.writerow(value)
-
 
 optimized_algo(available_stocks)
 
