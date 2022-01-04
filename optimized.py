@@ -1,8 +1,9 @@
-from pprint import pprint
-import math
 import numpy as np
+import csv
 
 CAPITAL = 500
+
+
 
 def stocks_dict(csv_file):
     """ Make a sorted stock dict out of a csv file
@@ -40,11 +41,20 @@ def common_step(dict_of_stocks):
     return int(gcd)
 
 
+def credit_left(credit, dict_reference):
+
+    available_credit = credit
+    for stock in dict_reference:
+        start, end = stock.split("-")
+        available_credit -= available_stocks[int(end)-1][0]
+
+    return available_credit
+
 def optimized_algo(stocks_dict):
 
     step = common_step(stocks_dict)
     number_of_steps = int(CAPITAL/step)
-    table = [[[0, []] for index in range(CAPITAL+1)] for value in range(len(stocks_dict))]
+    table = [[[0, [], 0] for index in range(CAPITAL+1)] for value in range(len(stocks_dict))]
 
     for stock, row in zip(stocks_dict, range(0, len(stocks_dict))):
         for column in range(len(table[row])):
@@ -82,10 +92,8 @@ def optimized_algo(stocks_dict):
             else:
                 table[row][column] = table[row - 1][column]
 
-    for value in stocks_dict:
-        print(stocks_dict[value])
+            table[row][column][2] = credit_left(column,table[row][column][1])
 
-    import csv
     with open('audit.csv', 'w', encoding="utf-8", newline='' ) as csv_file:
         writer = csv.writer(csv_file, delimiter=",")
         writer.writerow([x for x in range(0,CAPITAL+1)])
@@ -94,7 +102,5 @@ def optimized_algo(stocks_dict):
             writer.writerow(value)
 
 
-
 optimized_algo(available_stocks)
-
 
