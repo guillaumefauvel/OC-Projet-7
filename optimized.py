@@ -3,8 +3,6 @@ import csv
 
 CAPITAL = 500
 
-
-
 def stocks_dict(csv_file):
     """ Make a sorted stock dict out of a csv file
         Arg : A csv file, with containing three columns, 1:reference, 2:cost, 3:stock_performance
@@ -57,16 +55,13 @@ def optimized_algo(stocks_dict):
     table = [[[0, [], 0] for index in range(CAPITAL+1)] for value in range(len(stocks_dict))]
 
     for stock, row in zip(stocks_dict, range(0, len(stocks_dict))):
+
         for column in range(len(table[row])):
 
             above_cell_perf = table[row - 1][column][0]
             above_cell_stocks = table[row - 1][column][1]
 
-
-            if row == 0 or column == 0:
-                table[row][column][0] = 0
-
-            elif stocks_dict[stock][0] <= column:
+            if stocks_dict[stock][0] <= column:
 
                 if column - stocks_dict[stock][0] >= 0:
 
@@ -94,10 +89,17 @@ def optimized_algo(stocks_dict):
 
             table[row][column][2] = credit_left(column,table[row][column][1])
 
+    best_cell = table[len(stocks_dict)-1][CAPITAL]
+    added_value, combinations, credit_available = best_cell
+    return_on_investment = round(added_value / CAPITAL * 100,3)
+
+    print(f"Le meilleur ROI possible avec {CAPITAL} de crédit est de {return_on_investment}%."
+          f"\nIl est obtenu avec la combinaison suivantes : {', '.join(combinations)}")
+
     with open('audit.csv', 'w', encoding="utf-8", newline='' ) as csv_file:
         writer = csv.writer(csv_file, delimiter=",")
         writer.writerow([x for x in range(0,CAPITAL+1)])
-        # writer.writerow([x for x in range(step,CAPITAL+step,step)])
+
         for value in table:
             writer.writerow(value)
 

@@ -44,7 +44,7 @@ def get_limit(reference_dict, max_credit):
     return minimum_value, maximum_value
 
 
-def perfomance_counter(dict_of_stocks, reference_dict):
+def perfomance_counter(dict_of_stocks, reference_dict, credit):
     """ Compute the total of a given combination
         Args : The combination to compute, The dict that contains stocks reference cost and performance
         Return : The ROI, The combination reference"""
@@ -59,7 +59,7 @@ def perfomance_counter(dict_of_stocks, reference_dict):
         overall_added_value += added_value
         overall_cost += cost
 
-    return_on_investment = ((round((overall_added_value + overall_cost) / overall_cost, 3))*100)-100
+    return_on_investment = ((round((overall_added_value) / credit, 5))*100)
 
     return return_on_investment, dict_of_stocks
 
@@ -89,10 +89,11 @@ def bruteforce(reference_dict, max_cost):
         combi = list(combinations(reference_dict, lenght))
         for value in combi:
             if cost_counter(value, reference_dict) <= max_cost:
-                score, combination = perfomance_counter(value, reference_dict)
+                score, combination = perfomance_counter(value, reference_dict, max_cost)
                 if score > best_score:
                     best_score = score
                     best_combination = combination
+
     print(datetime.now()-start_time)
 
     print(f"La meilleur score est {round(best_score, 4)}%")
