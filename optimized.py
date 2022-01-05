@@ -2,7 +2,9 @@ import numpy as np
 from datetime import datetime
 import csv
 
+
 CAPITAL = 500
+
 
 def stocks_dict(csv_file):
     """ Make a sorted stock dict out of a csv file
@@ -14,30 +16,42 @@ def stocks_dict(csv_file):
         for line in csv:
             listed_line = line.split(",")
             listed_line[2] = listed_line[2].split('\n')[0]
+
             try:
-                cost = int(listed_line[1])
-                performance = int(listed_line[2])
+                cost = float(listed_line[1])
+                performance = float(listed_line[2])
                 added_performance = round(cost*performance/100,3)
                 name = listed_line[0]
                 stock_dict[index] = cost, added_performance, name
                 index += 1
+
             except ValueError:
                 pass
 
     return stock_dict
-
-available_stocks = (stocks_dict("stocks.csv"))
-
 
 def common_step(dict_of_stocks):
     # Get the greatest common divisor in order to reduce the table
     # Arg : A dictionnary of stocks where the first value correspond to the cost
     # Return : An int, the GCD
 
-    costs_lists = np.array([x[1][0] for x in dict_of_stocks.items()])
-    gcd = np.gcd.reduce(costs_lists)
+    formated_dict = [dict_of_stocks[a][0] for a in dict_of_stocks]
 
-    return int(gcd)
+    def to_int(array, coef):
+        signal = True
+        for value in array:
+            if not value.is_integer():
+
+                return to_int(np.array(array)*10, coef+1)
+        if signal is True:
+            reference_list = [int(a) for a in array]
+
+            return [reference_list, coef]
+
+    adjusted_array, coef = to_int(formated_dict, 0)
+    gcd = np.gcd.reduce(adjusted_array)/(10**coef)
+
+    return gcd
 
 
 def optimized_algo(stocks_dict):
@@ -90,12 +104,7 @@ def optimized_algo(stocks_dict):
           f"\nIl est obtenu avec la combinaison suivante : {', '.join(combinations)}")
     print(f"\nL'opération a été effectué en {datetime.now()-start_time}")
 
-    with open('audit.csv', 'w', encoding="utf-8", newline='' ) as csv_file:
-        writer = csv.writer(csv_file, delimiter=",")
-        writer.writerow([x for x in range(0,CAPITAL+step,step)])
 
-        for value in table:
-            writer.writerow(value)
-
+available_stocks = (stocks_dict("stocks.csv"))
 optimized_algo(available_stocks)
 
