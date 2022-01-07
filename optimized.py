@@ -2,6 +2,7 @@ import numpy as np
 from datetime import datetime
 import math
 
+
 CAPITAL = 500
 
 def stocks_dict(csv_file):
@@ -62,7 +63,6 @@ def common_step(dict_of_stocks):
 
     return gcd
 
-
 def optimized_algo(stocks_dict, max_credit):
     """ Create a grid in order to have the best possible value for money
     Arg : A dictionnary of stocks ( key=index, v1=cost, v2=added_value, v3=stocks_reference ) """
@@ -70,7 +70,7 @@ def optimized_algo(stocks_dict, max_credit):
 
     step = common_step(stocks_dict)
     number_of_steps = int(max_credit/step)
-    print(len(stocks_dict), number_of_steps+1)
+
     table = [[[0, [], 0] for index in range(number_of_steps+1)] for value in range(len(stocks_dict))]
 
     for stock, row in zip(stocks_dict, range(0, len(stocks_dict))):
@@ -87,14 +87,14 @@ def optimized_algo(stocks_dict, max_credit):
                     added_value = stocks_dict[stock][1]
                     added_stock_name = stocks_dict[stock][2]
 
-                    without_last = table[row - 1][column - math.floor(stocks_dict[stock][0] / step)][0]
-                    without_last_stock = table[row - 1][column - math.floor(stocks_dict[stock][0] / step)][1]
-                    without_last_cost = table[row - 1][column - math.floor(stocks_dict[stock][0] / step)][2]
+                    without_last = table[row - 1][column - int(stocks_dict[stock][0] / step)][0]
+                    without_last_stock = table[row - 1][column - int(stocks_dict[stock][0] / step)][1]
+                    without_last_cost = table[row - 1][column - int(stocks_dict[stock][0] / step)][2]
 
                     if (added_value + without_last) > above_cell_perf and (added_stock_cost + without_last_cost) <= column*step:
                         table[row][column][0] = added_value + without_last
-                        for stock_ref in without_last_stock:
-                            table[row][column][1].append(stock_ref)
+
+                        table[row][column][1].extend(without_last_stock)
                         table[row][column][1].append(added_stock_name)
                         table[row][column][2] = added_stock_cost + without_last_cost
 
@@ -107,7 +107,6 @@ def optimized_algo(stocks_dict, max_credit):
 
             else:
                 table[row][column] = table[row - 1][column]
-
 
     best_cell = table[len(stocks_dict)-1][number_of_steps]
     added_value, combinations, total_cost = best_cell
@@ -123,9 +122,12 @@ def optimized_algo(stocks_dict, max_credit):
     return return_on_investment, added_value, total_cost, combinations, total_runtime
 
 
-available_stocks = (stocks_dict("série1.csv"))
+available_stocks = (stocks_dict("série2.csv"))
 
 return_on_investment, added_value, total_cost, combinations, total_runtime = optimized_algo(available_stocks, CAPITAL)
+
+
+
 
 
 print(f"\nLe meilleur ROI possible avec {CAPITAL} de crédit est de {return_on_investment}%, soit {added_value}e de gains.")
