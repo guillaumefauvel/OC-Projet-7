@@ -83,25 +83,20 @@ def optimized_algo(stocks_dict, max_credit):
 
             if stocks_dict[stock][0] <= column*step:
 
-                if column*step - stocks_dict[stock][0] >= 0:
+                added_stock_cost = stocks_dict[stock][0]
+                added_value = stocks_dict[stock][1]
+                added_stock_name = stocks_dict[stock][2]
 
-                    added_stock_cost = stocks_dict[stock][0]
-                    added_value = stocks_dict[stock][1]
-                    added_stock_name = stocks_dict[stock][2]
+                without_last = table[row - 1][column - int(stocks_dict[stock][0] / step)][0]
+                without_last_stock = table[row - 1][column - int(stocks_dict[stock][0] / step)][1]
+                without_last_cost = table[row - 1][column - int(stocks_dict[stock][0] / step)][2]
 
-                    without_last = table[row - 1][column - int(stocks_dict[stock][0] / step)][0]
-                    without_last_stock = table[row - 1][column - int(stocks_dict[stock][0] / step)][1]
-                    without_last_cost = table[row - 1][column - int(stocks_dict[stock][0] / step)][2]
+                if (added_value + without_last) > above_cell_perf and (added_stock_cost + without_last_cost) <= column*step:
 
-                    if (added_value + without_last) > above_cell_perf and (added_stock_cost + without_last_cost) <= column*step:
-                        table[row][column][0] = added_value + without_last
-
-                        table[row][column][1].extend(without_last_stock)
-                        table[row][column][1].append(added_stock_name)
-                        table[row][column][2] = added_stock_cost + without_last_cost
-
-                    else:
-                        table[row][column] = table[row - 1][column]
+                    table[row][column][0] = added_value + without_last
+                    table[row][column][1].extend(without_last_stock)
+                    table[row][column][1].append(added_stock_name)
+                    table[row][column][2] = added_stock_cost + without_last_cost
 
                 else:
                     table[row][column] = table[row - 1][column]

@@ -101,6 +101,7 @@ def bruteforce(reference_dict, max_cost):
 
     return return_on_investment, best_score, total_cost, best_combination, total_runtime
 
+
 def main():
     sorted_dict = (stock_sorter("stocks.csv"))
     return_on_investment, best_score, total_cost, best_combination, total_runtime = bruteforce(sorted_dict, CAPITAL)
