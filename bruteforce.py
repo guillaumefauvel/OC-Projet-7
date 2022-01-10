@@ -31,28 +31,27 @@ def get_limit(reference_dict, max_credit):
 
     total = 0
     minimum_value = 0
-    for value in reference_dict:
+    for stock in reference_dict:
         if total <= max_credit:
-            total += reference_dict[value][0]
+            total += reference_dict[stock][0]
             minimum_value += 1
 
     reversed_dict = dict(sorted(reference_dict.items(), key=operator.itemgetter(1), reverse=False))
 
     total = 0
     maximum_value = 0
-    for value in reversed_dict:
+    for stock in reversed_dict:
         if total <= max_credit:
-            total += reversed_dict[value][0]
+            total += reversed_dict[stock][0]
             maximum_value += 1
 
     return minimum_value, maximum_value
 
 
-def perfomance_counter(dict_of_stocks, reference_dict, credit):
+def perfomance_counter(dict_of_stocks, reference_dict):
     """ Compute the total of a given combination
         Args : The combination to compute, The dict that contains stocks reference cost and performance
-        Return : The ROI, The combination reference"""
-
+        Return : The added value ( float )"""
 
     overall_added_value = 0
 
@@ -62,7 +61,7 @@ def perfomance_counter(dict_of_stocks, reference_dict, credit):
         added_value = cost*(performance*0.01)
         overall_added_value += added_value
 
-    return overall_added_value, dict_of_stocks
+    return overall_added_value
 
 
 def cost_counter(selected_stocks, reference_dict):
@@ -89,20 +88,18 @@ def bruteforce(reference_dict, max_cost):
 
     for lenght in range(min_length, max_lenght+1):
         combi = combinations(reference_dict, lenght)
-        for value in combi:
-            if cost_counter(value, reference_dict) <= max_cost:
-
-                score, combination = perfomance_counter(value, reference_dict, max_cost)
+        for set in combi:
+            if cost_counter(set, reference_dict) <= max_cost:
+                score = perfomance_counter(set, reference_dict)
                 if score > best_score:
                     best_score = score
-                    best_combination = combination
+                    best_combination = set
 
     return_on_investment = round(best_score / max_cost, 4)*100
     total_cost = cost_counter(best_combination, reference_dict)
     total_runtime = datetime.now()-start_time
 
     return return_on_investment, best_score, total_cost, best_combination, total_runtime
-
 
 def main():
     sorted_dict = (stock_sorter("stocks.csv"))
@@ -111,7 +108,7 @@ def main():
     print(f"\nLe meilleur ROI possible avec {CAPITAL} de crédit est de {round(return_on_investment, 4)}%,"
           f" soit {round(best_score,4)}e de gains.")
     print(f"Le coût total est de {total_cost}e.")
-    print(f"\nIl est obtenu avec la combinaison suivante : {', '.join(best_combination)}")
+    print(f"\nIl est obtenu avec la combinaison suivante : \n{', '.join(best_combination)}")
     print(f"\nL'opération a été effectué en {total_runtime}")
 
 main()
