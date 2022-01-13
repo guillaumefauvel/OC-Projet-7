@@ -118,12 +118,6 @@ def optimized_algo(stocks_dict, max_credit):
 
     total_runtime = datetime.now()-start_time
 
-    import csv
-    with open('audit3.csv', 'w', encoding="utf-8", newline='') as csv_file:
-        writer = csv.writer(csv_file, delimiter=",")
-        for value in table:
-            writer.writerow(value)
-
     return return_on_investment, added_value, total_cost, combinations, total_runtime
 
 
