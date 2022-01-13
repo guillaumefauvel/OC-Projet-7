@@ -4,6 +4,7 @@ import operator
 
 CAPITAL = 500
 
+
 def stock_sorter(csv_file):
     """ Make a sorted stock dict out of a csv file
         Arg : A csv file, with containing three columns, 1:reference, 2:cost, 3:stock_performance
@@ -19,8 +20,6 @@ def stock_sorter(csv_file):
             except ValueError:
                 pass
 
-    stock_dict = dict(sorted(stock_dict.items(), key=operator.itemgetter(1), reverse=True))
-
     return stock_dict
 
 
@@ -29,11 +28,13 @@ def get_limit(reference_dict, max_credit):
         Args : The sorted stocks dict, The maximum total cost of a combination (included)
         Return : The minimum lenght, The maximum lenght"""
 
+    stock_dict = dict(sorted(reference_dict.items(), key=operator.itemgetter(1), reverse=True))
+
     total = 0
     minimum_value = 0
-    for stock in reference_dict:
+    for stock in stock_dict:
         if total <= max_credit:
-            total += reference_dict[stock][0]
+            total += stock_dict[stock][0]
             minimum_value += 1
 
     reversed_dict = dict(sorted(reference_dict.items(), key=operator.itemgetter(1), reverse=False))
@@ -46,6 +47,19 @@ def get_limit(reference_dict, max_credit):
             maximum_value += 1
 
     return minimum_value, maximum_value
+
+
+def cost_counter(selected_stocks, reference_dict):
+    """ Compute the cost of a given combination
+        Args : The combination to compute, The dict that contains stocks reference cost and performance
+        Return : The total cost
+    """
+
+    total_weight = 0
+    for value in selected_stocks:
+        total_weight += reference_dict[value][0]
+
+    return total_weight
 
 
 def perfomance_counter(dict_of_stocks, reference_dict):
@@ -64,19 +78,6 @@ def perfomance_counter(dict_of_stocks, reference_dict):
     return overall_added_value
 
 
-def cost_counter(selected_stocks, reference_dict):
-    """ Compute the cost of a given combination
-        Args : The combination to compute, The dict that contains stocks reference cost and performance
-        Return : The total cost
-    """
-
-    total_weight = 0
-    for value in selected_stocks:
-        total_weight += reference_dict[value][0]
-
-    return total_weight
-
-
 def bruteforce(reference_dict, max_cost):
     """ Print the best combination
     Arg : A sorted dict of stocks, The cost limit """
@@ -87,13 +88,13 @@ def bruteforce(reference_dict, max_cost):
     best_combination = []
 
     for lenght in range(min_length, max_lenght+1):
-        combi = combinations(reference_dict, lenght)
-        for set in combi:
-            if cost_counter(set, reference_dict) <= max_cost:
-                score = perfomance_counter(set, reference_dict)
+        combis = combinations(reference_dict, lenght)
+        for combi in combis:
+            if cost_counter(combi, reference_dict) <= max_cost:
+                score = perfomance_counter(combi, reference_dict)
                 if score > best_score:
                     best_score = score
-                    best_combination = set
+                    best_combination = combi
 
     return_on_investment = round(best_score / max_cost, 4)*100
     total_cost = cost_counter(best_combination, reference_dict)
@@ -111,5 +112,6 @@ def main():
     print(f"Le coût total est de {total_cost}e.")
     print(f"\nIl est obtenu avec la combinaison suivante : \n{', '.join(best_combination)}")
     print(f"\nL'opération a été effectué en {total_runtime}")
+
 
 main()

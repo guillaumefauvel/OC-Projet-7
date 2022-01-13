@@ -4,7 +4,8 @@ import math
 
 CAPITAL = 500
 
-def stocks_dict(csv_file):
+
+def stocks_dict_maker(csv_file):
     """ Make a sorted stock dict out of a csv file
         Arg : A csv file, with containing three columns, 1:reference, 2:cost, 3:stock_performance
         Return : A dict containing stocks infos """
@@ -18,7 +19,7 @@ def stocks_dict(csv_file):
                 cost = float(listed_line[1])
                 performance = float(listed_line[2])
                 if cost > 0:
-                    added_performance = round(cost*performance/100,3)
+                    added_performance = round(cost*performance/100, 3)
                     name = listed_line[0]
                     stock_dict[index] = cost, added_performance, name
                     index += 1
@@ -39,7 +40,7 @@ def to_int(array):
     for value in array:
         frac, whole = math.modf(value)
         whole_len = len(str(int(whole)))
-        frac_len = len(str(value).replace('.',''))-whole_len
+        frac_len = len(str(value).replace('.', ''))-whole_len
         if frac_len > longest_frac:
             longest_frac = frac_len
 
@@ -91,8 +92,10 @@ def optimized_algo(stocks_dict, max_credit):
                 without_last_stock = table[row - 1][column - int(stocks_dict[stock][0] / step)][1]
                 without_last_cost = table[row - 1][column - int(stocks_dict[stock][0] / step)][2]
 
-                if (added_value + without_last) > above_cell_perf and (added_stock_cost + without_last_cost) <= column*step:
+                condition_one = (added_value + without_last) > above_cell_perf
+                condition_two = (added_stock_cost + without_last_cost) <= column*step
 
+                if condition_one and condition_two:
                     table[row][column][0] = added_value + without_last
                     table[row][column][1].extend(without_last_stock)
                     table[row][column][1].append(added_stock_name)
@@ -106,7 +109,7 @@ def optimized_algo(stocks_dict, max_credit):
 
     best_cell = table[len(stocks_dict)-1][number_of_steps]
     added_value, combinations, total_cost = best_cell
-    return_on_investment = round(added_value / max_credit * 100,4)
+    return_on_investment = round(added_value / max_credit * 100, 4)
 
     total_cost = 0
     for stock in stocks_dict.values():
@@ -115,16 +118,22 @@ def optimized_algo(stocks_dict, max_credit):
 
     total_runtime = datetime.now()-start_time
 
+    import csv
+    with open('audit3.csv', 'w', encoding="utf-8", newline='') as csv_file:
+        writer = csv.writer(csv_file, delimiter=",")
+        for value in table:
+            writer.writerow(value)
+
     return return_on_investment, added_value, total_cost, combinations, total_runtime
 
 
 def main():
 
-    available_stocks = (stocks_dict("stocks.csv"))
+    available_stocks = (stocks_dict_maker("série2.csv"))
 
-    return_on_investment, added_value, total_cost, combinations, total_runtime = optimized_algo(available_stocks, CAPITAL)
+    roi, added_value, total_cost, combinations, total_runtime = optimized_algo(available_stocks, CAPITAL)
 
-    print(f"\nLe meilleur ROI possible avec {CAPITAL} de crédit est de {return_on_investment}%,"
+    print(f"\nLe meilleur ROI possible avec {CAPITAL} de crédit est de {roi}%,"
           f" soit {round(added_value, 4)}e de gains.")
     print(f"Le coût total est de {total_cost}e.")
     print(f"\nIl est obtenu avec la combinaison suivante : \n{', '.join(combinations)}")
