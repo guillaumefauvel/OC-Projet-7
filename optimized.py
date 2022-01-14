@@ -111,11 +111,6 @@ def optimized_algo(stocks_dict, max_credit):
     added_value, combinations, total_cost = best_cell
     return_on_investment = round(added_value / max_credit * 100, 4)
 
-    total_cost = 0
-    for stock in stocks_dict.values():
-        if stock[2] in combinations:
-            total_cost += stock[0]
-
     total_runtime = datetime.now()-start_time
 
     return return_on_investment, added_value, total_cost, combinations, total_runtime
@@ -123,7 +118,7 @@ def optimized_algo(stocks_dict, max_credit):
 
 def main():
 
-    available_stocks = (stocks_dict_maker("série2.csv"))
+    available_stocks = (stocks_dict_maker("série1.csv"))
 
     roi, added_value, total_cost, combinations, total_runtime = optimized_algo(available_stocks, CAPITAL)
 
